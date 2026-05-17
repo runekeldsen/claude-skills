@@ -249,3 +249,5 @@ What to ask depends on the app — number of beds, project name, preferences, et
 | New device overwrites cloud with empty local data | On first connect, pull from cloud if `cloud.lastModified > local.lastModified` |
 | Users can read each other's data | Enable RLS + add `auth.uid() = user_id` policy |
 | Sign-in persists across page reloads | Call `sb.auth.getSession()` on startup and restore session if found |
+| Auth modal overlay blocks the whole page on load | Add `.hidden { display: none !important; }` to CSS — `classList.add('hidden')` silently fails without it |
+| Vercel not picking up git pushes | GitHub auto-deploy can silently break; run `vercel --prod` manually from the project directory to force deploy |
