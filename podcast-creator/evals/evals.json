@@ -1,0 +1,23 @@
+{
+  "skill_name": "podcast-creator",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Make a podcast about the rise of nuclear energy as a climate solution",
+      "expected_output": "A research-backed 10-minute podcast script (~1500 words) with a hook intro, 3 content segments, and an outro, written in spoken conversational prose. Should include recent examples (e.g. SMRs, country-level policy shifts). Sends payload to n8n webhook and confirms audio generation started.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Can you create a podcast episode on why sleep is the most underrated performance enhancer?",
+      "expected_output": "Script covers circadian biology, recent research on sleep deprivation effects on cognition/athletics, practical takeaways. Natural spoken style with transitions. Sends to n8n and reports estimated runtime.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Podcast on the history and future of the internet — where it came from and where it's going",
+      "expected_output": "Script traces ARPANET origins through web 1.0/2.0/3.0 and into AI internet trends. Engaging narrative arc. ~1500 words. N8n webhook payload sent successfully.",
+      "files": []
+    }
+  ]
+}
