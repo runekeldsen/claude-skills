@@ -215,3 +215,35 @@ When modifying a workflow:
 4. Verify the response includes your changed nodes
 5. If adding a new exercise, also add it to `exercise_gifs` sheet
 6. If changing program rules, update the system prompt in `Generate Workout Plan` (Daily Scheduler)
+
+---
+
+## HA Dashboard — Fitness Progress Card
+
+### Location
+- **Dashboard**: Mobile dashboard (`lovelace.mobile_dashboard`)
+- **View**: "Fitness" (path: `fitness`, view index `[1]`)
+- **Card position**: index `[9]` — between the muscle recovery card and the vertical-stack media player
+
+### JS Server workflow
+- **Workflow ID**: `A4p1YNXVcqXR1lAR` ("Fitness Progress Card - JS Server")
+- **Webhook node**: "Card JS Webhook" — path must match the registered resource URL
+- **Serve node**: "Serve Card JS" — `responseBody` contains the full card JS
+
+### Resource registration
+- The JS URL must be registered in **both** the n8n webhook path AND the mobile dashboard's `resources` array
+- Mobile dashboard resources: stored in `/mnt/homeassistant/.storage/lovelace.mobile_dashboard` under `data.config.resources`
+- Apartment dashboard resources: stored in the `dashboard-apartment` lovelace config (WebSocket url_path `dashboard-apartment`)
+
+### Update procedure
+1. Write new card JS, check syntax with `node --check`
+2. Update `Serve Card JS` node's `responseBody` via PUT to n8n workflow
+3. Change `Card JS Webhook` node's `path` to a **new versioned name** (e.g. `fitness-progress-card-v4.js`) — Cloudflare caches aggressively (`max-age=14400`), so a new path is the only reliable cache-bust
+4. Activate workflow: `POST /api/v1/workflows/A4p1YNXVcqXR1lAR/activate`
+5. Update mobile dashboard resource URL to match the new path — edit `/mnt/homeassistant/.storage/lovelace.mobile_dashboard` directly, then push via WebSocket: `lovelace/config/save` with `url_path: 'mobile-dashboard'`
+6. Reload HA browser tab
+
+### Cloudflare caching gotcha
+- n8n is behind Cloudflare which overrides `Cache-Control` to `max-age=14400` (4 hours)
+- Setting `no-cache` in n8n has no effect — Cloudflare ignores it
+- **Only fix**: use a new URL path for each update (increment version suffix)
