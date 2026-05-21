@@ -84,9 +84,9 @@ no_not_today                                     → skip today
 ### Weight-only change flow (change button)
 - Button callback: `change|exerciseName|sets|reps|muscleGroup`
 - `Parse Change Context` stores exercise in `staticData.pendingChanges[chatId]`
-- Prompt sent: "✏️ How many kg for *ExerciseName*?"
+- Prompt sent: "✏️ How many kg for *ExerciseName*?" (rendered via `={{ "✏️ How many kg for *" + $json.exercise_name + "*?" }}`)
 - Next text message: `Build AI Context` checks static data → sets `should_fast_log: true` if pending change exists AND message is a number
-- `Has Pending Change?` If node: true → `Log Weight Change` (reads static data, logs with original sets/reps + new weight, clears pending) → `Save Log Entry`
+- `Has Pending Change?` If node: true → `Log Weight Change` (reads static data, logs with original sets/reps + new weight, clears pending) → `Save Log Entry` → `Find Next Exercise`
 
 ### Static workflow data (persists across executions)
 ```js
@@ -200,6 +200,9 @@ Updated via `Call HA PR Update` (homeAssistant node, credential `7f6R7EYBfP7HzE4
 - **To run a one-shot operation**: create workflow with webhook trigger + static webhookId, activate via `POST /workflows/{id}/activate`, call the webhook, then deactivate + delete
 - **Duplicate Telegram messages** were caused by Telegram webhook retries (slow AI chain) — fixed by the `Deduplicate Update` node using static data
 - **n8n OpenAI v2**: use `operation: "response"` (not "message") for `resource: "text"`; output at `$json.output[0].content[0].text`
+- **Shared downstream nodes must handle all upstream paths**: Any Code node reached from multiple paths (e.g. warmup path vs normal path) must try each possible upstream node with `try/catch` fallbacks. Example: `Lookup GIF for Next` must try both `$('Find Next Exercise')` and `$('Find First from Warmup')` — whichever path ran.
+- **`Find Next Exercise` context sources**: This node is reached from 3 paths — try in order: `$('Expand Log Sets')`, then `$('Log Exercise from Button')`, then `$('Log Weight Change')`. All three output `{ chat_id, exercises_json, today_logged, just_logged }`.
+- **Telegram node text expressions**: `{{ $json.field }}` in a text field WITHOUT a leading `=` renders as literal text. Always use `={{ "prefix" + $json.field + "suffix" }}` for mixed strings, or `={{ $json.field }}` for pure expressions.
 
 ---
 
